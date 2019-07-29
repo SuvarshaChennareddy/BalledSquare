@@ -11,19 +11,26 @@ class NEAT:
         self.size = 1
         
     
-    def createPopulation(self, size, bird, main, numInputs, numOutputs):
-        self.organisms = genes.Genes(numInputs, numOutputs, size)
+    def createPopulation(self, popsize, oat, bird, main, numInputs, numOutputs):
+        self.organisms = genes.Genes(numInputs, numOutputs, popsize)
         self.organisms.newGenomes()
-        self.pop = popu.Pop(size, bird, main)
-        self.fitness = [1]*size
+        self.pop = popu.Pop(oat, bird, main)
+        self.fitness = [1]*popsize
         #self.fitness = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        self.size = size
+        self.size = popsize
+        self.inter = oat
+        self.r = 0
         
 
-    def runPopulation(self):
-        self.pop.run()
+    def runOrganisms(self):
+        if (self.r >= self.size):
+            self.r = 0
+            self.reproduce()
+        else:
+            self.pop.run(self.r)
+            self.r += self.inter
         
-    def getPopulation(self):
+    def getOrganisms(self):
         return self.pop.birds
     
     def setFitness(self, num, fitness):
@@ -140,4 +147,4 @@ class NEAT:
         #print(self.organisms.representatives)
         #print()
         
-        self.runPopulation()
+        self.runOrganisms()

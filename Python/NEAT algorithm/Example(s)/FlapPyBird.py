@@ -17,6 +17,7 @@ import copy
 import gc
 
 
+
 # Start pygame
 pygame.init()
 
@@ -289,6 +290,8 @@ def run(bird, num):
             if (round(neat.decide(inputs, num)[0]) == 1):
                 bird.Click()
         except:
+            print(num)
+            print(len(neat.organisms.organs))
             if (round(neat.decide(inputs, num)[0]) == 1):
                 bird.Click()
 
@@ -302,8 +305,8 @@ def run(bird, num):
 
         bird.fitness = 50*counter - (best.pos - bird.pos[0])
 ##        if bird.score >= 1:
-##            bird.fitness = 50*counter - (best.pos - bird.pos[0])
-##            #bird.fitness +=1
+##            #bird.fitness = 50*counter - (best.pos - bird.pos[0])
+##            bird.fitness +=1
 ##        else:
 ##            bird.fitness += 0.5
 
@@ -372,14 +375,14 @@ def run(bird, num):
 bird = Bird((windowObj.get_width() / 4 , windowObj.get_height() / 2))
 global pipes
 pipes = [Pipes()]
-neat.createPopulation(20, bird , run, 3, 1)
+neat.createPopulation(100, 20, bird , run, 3, 1)
 def Pip():
     global pipes
     global windowObj
     global birds
 
     while True:
-        birds = neat.getPopulation()
+        birds = neat.getOrganisms()
         
         windowObj.fill(backgroundColor)
         
@@ -391,7 +394,9 @@ def Pip():
 
             gc.collect()
             
-            neat.reproduce()
+            neat.runOrganisms()
+            #print(neat.organisms.organs)
+            #print(neat.organisms.species)
             
         for event in pygame.event.get():
 
@@ -448,5 +453,5 @@ def Pip():
 
 pip = threading.Thread(target = Pip, daemon=True)
 pip.start()
-neat.runPopulation()
+neat.runOrganisms()
 

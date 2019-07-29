@@ -1,6 +1,5 @@
 import threading
 import copy
-import gc
 class Pop:
     """
     size = 0
@@ -19,16 +18,17 @@ class Pop:
         self.birds = [copy.deepcopy(bird) for i in range(self.size)]
 
 
-    def run(self):
-        gc.collect()
+    def run(self, interval):
         self.birds = [copy.deepcopy(self.bird) for i in range(self.size)]
+        num = interval
+        #print("hey", num)
         for i in range(len(self.birds)):
-            num = i
             #global vars()[string+str(i)]
-            vars()[self.string+str(i)] = threading.Thread(target = self.main, args=(self.birds[i], num,))
+            vars()[self.string+str(i)] = threading.Thread(target = self.main, args=(self.birds[i], copy.deepcopy(num),))
             #print(str(vars()[self.string+str(i)]))
             (vars()[self.string+str(i)]).start()
             #(vars()[self.string+str(i)]).join()
+            num+=1
         checking = threading.Thread(target = self.check)
         checking.start()
 
@@ -42,6 +42,5 @@ class Pop:
                     except:
                         pass
                     #print(len(self.birds))
-        gc.collect()
         #self.run()
         #print("done")

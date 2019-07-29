@@ -17,6 +17,7 @@ class Genes:
         global innov
         self.innov = []
         self.biggestnode = self.innum + self.outnum
+        
     def newGenomes(self):
         self.gene1=[(copy.deepcopy([i+1,1])) for i in range(self.innum+self.outnum)]#np.arange(1, self.innum+self.outnum+1)
         for j in range(self.num):
@@ -148,27 +149,31 @@ class Genes:
             num = np.random.uniform(0,101)
             if (num <= prob):
                 try:
+                    #genome2 is good but the given innovation number is not in it, then pass and dont do anything 
                     if ((fitness2 > fitness1) and (y[1] not in innov_nums2)):
                         pass
                     else:
                         child_genome[1].append(genome1[1][innov_nums1.index(y[1])])
                 except:
-                    if fitness2 > fitness1:
+                    if (y[1] in innov_nums2):
+                        #print("hey1")
                         child_genome[1].append(genome2[1][innov_nums2.index(y[1])])
             else:
                 try:
+                    #genome1 is good but the given innovation number is not in it, then pass and dont do anything 
                     if ((fitness1 > fitness2) and (y[1] not in innov_nums1)):
                         pass
                     else:
                         child_genome[1].append(genome2[1][innov_nums2.index(y[1])])
                 except:
-                    if fitness1 > fitness2:
+                    if (y[1] in innov_nums1):
+                        #print("hey2")
                         child_genome[1].append(genome1[1][innov_nums1.index(y[1])])
                         
         child_genome[0].extend(self.order_nodes(child_genome, genome1, genome2))
         #print(child_genome[0])
         mutprob = np.random.randint(0, 100)
-        if (mutprob <= 20):
+        if (mutprob <= 15):
             child_genome = self.choose(child_genome)
         #print(child_genome)
         return child_genome
@@ -185,7 +190,11 @@ class Genes:
         b1 = [pgenome1[0][i][1] for i in range(len(pgenome1[0]))]
         b2 = [pgenome1[0][i][1] for i in range(len(pgenome1[0]))]
         #every_node = copy.deepcopy(p1)+ copy.deepcopy([i for i in copy.deepcopy(p2) if i not in copy.deepcopy(p2)])
-        every_node = [(copy.deepcopy(i+1)) for i in range(self.innum+self.outnum)]#list(set(p1).intersection(set(p2)))
+
+        every_node = copy.deepcopy(p1)#list(set(p1).intersection(set(p2)))
+        if(len(p1) < len(p2)):
+            every_node.clear()
+            every_node = copy.deepcopy(p2)
         hidden1 = (copy.deepcopy([i for i in copy.deepcopy(p2) if i not in copy.deepcopy(p1)]))
         hidden2 = (copy.deepcopy([i for i in copy.deepcopy(p1) if i not in copy.deepcopy(p2)]))
         hidden1.reverse()
@@ -193,11 +202,31 @@ class Genes:
         #print(every_node)
         #print(p1)
         for i in range(len(hidden1)):
-            if hidden1[i] in p2:
-                every_node.insert((every_node.index(p2[(p2.index(hidden1[i]))+1])), hidden1[i])
+            try:
+                if (hidden1[i] not in every_node):
+                    every_node.insert((every_node.index(p2[(p2.index(hidden1[i]))+1])), hidden1[i])
+                #print((every_node.index(p2[(p2.index(hidden1[i]))+1])))
+            except:
+                print((every_node.index(p2[(p2.index(hidden1[i]))+1])))
+                print(p2[(p2.index(hidden1[i]))+1])
+                print(hidden1)
+                print(hidden2)
+                print(p1)
+                print(p2)
+                print(every_node)
         for i in range(len(hidden2)):
-            if hidden2[i] in p1:
-                every_node.insert((every_node.index(p1[(p1.index(hidden2[i]))+1])), hidden2[i])
+            try:
+                if (hidden2[i] not in every_node):
+                    every_node.insert((every_node.index(p1[(p1.index(hidden2[i]))+1])), hidden2[i])
+                #print((every_node.index(p1[(p1.index(hidden2[i]))+1])))
+            except:
+                print((every_node.index(p1[(p1.index(hidden2[i]))+1])))
+                print(p1[(p1.index(hidden2[i]))+1])
+                print(hidden1)
+                print(hidden2)
+                print(p1)
+                print(p2)
+                print(every_node)
         #print(p2)
         #print(every_node)
         for i in range(len(connects)):
@@ -207,6 +236,18 @@ class Genes:
             if (every_node[i] not in first):
                 every_node[i] = None
         every_node = [x for x in every_node if x != None]
+        for i in range(len(first)):
+            if (first[i] not in every_node):
+                print("start")
+                print(hidden1)
+                print(hidden2)
+                print(every_node)
+                print(genome)
+                print(pgenome1)
+                print(p1)
+                print(pgenome2)
+                print(p2)
+                print("end")
         #print(every_node)
         
 ##        except:
@@ -257,9 +298,9 @@ class Genes:
         return childg
 
     def mutation_add_node(self,genome):
-        #print("hey")
+        #print("mad")
         child_g = copy.deepcopy(genome)
-        
+        #print(child_g)
         #new_connection.clear()
         new_connection = []
         new_connection.clear()
@@ -270,51 +311,64 @@ class Genes:
         end_node = copy.deepcopy(child_g[1][ran][1])
         starting_node = copy.deepcopy(child_g[1][ran][0])
         current_bnode = copy.deepcopy(self.mutinnovnum([starting_node, end_node])) #copy.deepcopy(self.biggestnode)
-        alll_nodes = [child_g[0][i][0] for i in range(len(child_g))]
-        if (current_bnode in alll_nodes):
-            self.biggestnode+=1
-            current_bnode = copy.deepcopy(self.biggestnode)
-        child_g[1][ran][1] = copy.deepcopy(current_bnode)
-        old_wight = copy.deepcopy(child_g[1][ran][3])
-        child_g[1][ran][3] = copy.deepcopy(1)
-        innvo = copy.deepcopy(self.innovnum(copy.deepcopy([starting_node, current_bnode])))
-        child_g[1][ran][2] = copy.deepcopy(innvo)
-        new_connection.append(current_bnode)
-        new_connection.append(end_node)
-        innov_numb = copy.deepcopy(self.innovnum(copy.deepcopy([new_connection[0], new_connection[1]])))
-        new_connection.append(innov_numb)
-        new_connection.append(old_wight)
-        new_connection.append(True)
-        child_g[1].append(copy.deepcopy(new_connection))
         child_nodes = [child_g[0][i][0] for i in range(len(child_g[0]))]
-        index_old1 = child_nodes.index(end_node)
-        #index_old2 = child_nodes.index(starting_node)
-        child_g[0].insert(index_old1, copy.deepcopy([current_bnode, 1]))
-        #print("hey :", child_g[0])
-        return child_g
-        
-        
-
-
+        if (current_bnode in child_nodes):
+            #self.biggestnode+=1
+            #current_bnode = copy.deepcopy(self.biggestnode)
+            return self.mutation_add_node(child_g)
+        else:
+                
+            child_g[1][ran][1] = copy.deepcopy(current_bnode)
+            old_wight = copy.deepcopy(child_g[1][ran][3])
+            child_g[1][ran][3] = copy.deepcopy(1)
+            innvo = copy.deepcopy(self.innovnum(copy.deepcopy([starting_node, current_bnode])))
+            child_g[1][ran][2] = copy.deepcopy(innvo)
+            new_connection.append(current_bnode)
+            new_connection.append(end_node)
+            innov_numb = copy.deepcopy(self.innovnum(copy.deepcopy([new_connection[0], new_connection[1]])))
+            new_connection.append(innov_numb)
+            new_connection.append(old_wight)
+            new_connection.append(True)
+            child_g[1].append(copy.deepcopy(new_connection))
+            child_nodes = [child_g[0][i][0] for i in range(len(child_g[0]))]
+            try:
+                index_old1 = child_nodes.index(end_node)
+            except:
+                print("mad", child_g)
+                print(child_nodes)
+                print(end_node)
+                
+            #print(child_g)
+            #index_old2 = child_nodes.index(starting_node)
+            child_g[0].insert(index_old1, copy.deepcopy([current_bnode, 1]))
+            #print("hey :", child_g[0])
+            return child_g
 
     def mutation_add_connection(self,genome):
         chilg = copy.deepcopy(genome)
+        cou = 0
         try:
+            #print("mac")
             new_conne = []
             connectis = chilg[1]
             connectis = copy.deepcopy([[connectis[i][0], connectis[i][1]] for i in range(len(connectis))])
             child_nods = [chilg[0][i][0] for i in range(len(chilg[0]))]
             while True:
+                cou +=1
                 startin = child_nods[:-self.outnum]
                 ran1 = np.random.randint(0, len(startin))
+                ran3 =  copy.deepcopy(ran1)
                 stnode = startin[ran1]
-                endin = child_nods[self.innum:-self.outnum]
-            #print(endin)
-                ran2 = np.random.randint(stnode, len(endin))
+                endin = copy.deepcopy(child_nods)
+                if stnode <= self.innum:
+                    ran3 = self.innum+1
+                ran2 = np.random.randint(ran3, len(endin))
                 ennode = endin[ran2]
-                if ([stnode, ennode] not in connectis):
+                if (([stnode, ennode] not in connectis)):
                     break
-
+                if (cou == 10):
+                    error = 25/0
+                    
             new_conne.append(stnode)
             new_conne.append(ennode)
             innov_numbb = copy.deepcopy(self.innovnum(copy.deepcopy([new_conne[0], new_conne[1]])))
@@ -339,8 +393,8 @@ class Genes:
         
     def choose(self, child_genome):
         #choice = np.random.choice(, p=[0.25, 0.25, 0.25)
-        choice = np.random.randint(1, 4)
-        if choice == 9:
+        choice = np.random.randint(1, 5)
+        if choice == 1:
             return self.mutation_add_node(child_genome)
         elif choice == 2:
             return self.mutation_weight(child_genome)
@@ -371,10 +425,10 @@ class Genes:
                 for j in range(len(self.representatives)):
                     checker = copy.deepcopy(self.representatives[j])
                     try:
-                        dis = copy.deepcopy(self.distance(1, 1, 0.2, 2, copy.deepcopy(sorted_genomes[i]), checker))
+                        dis = copy.deepcopy(self.distance(1, 1, 0.5, 2, copy.deepcopy(sorted_genomes[i]), checker))
                     except:
                         print(copy.deepcopy(sorted_genomes[i]))
-                    if dis <= 1.5:
+                    if dis <= 3:
                         self.species.append(j+1)
                         break
                     
@@ -457,35 +511,26 @@ class Genes:
         #print(specnum)
         members = species.count(specnum)
         new_fit = fitness/members
-        return new_fit
+        return new_fit      
         
-        
-        
-            
-        
-        
-        
-        
-    
-            
-        
-        
-        
-##
-##gene = Genes(2, 1, 10)
+
+##gene = Genes(3, 1, 10)
 ##gene.newGenomes()
 ##print(gene.organs[0])
-##y = 0
 ##new_thing = gene.mutation_add_node(gene.organs[0])
-##new_thing = gene.mutation_add_node(new_thing)
-##new_thing = gene.mutation_add_node(new_thing)
-##chuld = gene.crossover(gene.organs[0], 4, new_thing, 2)
-##print(chuld)
 ##print(new_thing)
-##
-##
-##
-##
+##new_thing = gene.mutation_add_node(new_thing)
+##print(new_thing)
+##chuld = gene.crossover(gene.organs[0], 4, new_thing, 5)
+##print(chuld)
+##chuld = gene.mutation_add_connection(chuld)
+##print(chuld)
+##child = gene.crossover(new_thing, 4, new_thing, 4)
+##print(child)
 
-
-
+##p1 = [[[1, 1], [2, 1], [3, 1], [5, 1], [4, 1]], [[1, 4, 0, 1, True], [2, 5, 3, -2.270084875666722, True], [2, 4, 1, -2.270084875666722, False], [3, 4, 2, 1.7982463517865597, True], [5, 4, 4, -1.854765780262492, True], [1, 5, 5, -1.854765780262492, True]]]
+##p1 = [[[1, 1], [2, 1], [3, 1], [5, 1], [4, 1]], [[1, 4, 0, 1, True], [2, 5, 3, -2.270084875666722, True], [3, 4, 2, 1.7982463517865597, True], [5, 4, 4, -1.854765780262492, True]]]
+##p2 = [[[1, 1], [2, 1], [3, 1], [5, 1], [6, 1], [4, 1]], [[1, 6, 7, 1, True], [1, 4, 0, 1, True], [2, 4, 1, -2.270084875666722, False], [2, 5, 3, -2.27, True], [3, 4, 2, 1.7982463517865597, True], [5, 6, 7, 1, True], [3, 5, 8, 1, True], [6, 4, 6, -1.854765780262492, True], [5, 4, 4, -1.09, False]]]
+##p2 = [[[1, 1], [2, 1], [3, 1], [6, 1], [4, 1]], [[1, 4, 0, 1, True], [2, 6, 5, -2.270084875666722, True], [3, 4, 2, 1.7982463517865597, True], [6, 4, 6, -1.854765780262492, True]]]
+##chuld = gene.crossover(p1, 4, p2, 4)
+##print(chuld)

@@ -5,7 +5,7 @@ public class SqliteConnection {
 	public static Connection dbConnector() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			conn = DriverManager.getConnection("jdbc:mysql://db4free.net:3306/leaderboard2538", "pheonix", "password!");
+			conn = DriverManager.getConnection("jdbc:mysql://db4free.net:3306/leaderboard2538", "pheonix", "password!"); //fake details
 			JOptionPane.showMessageDialog(null, "Conncetion to database was successful. Please Proceed.");
 		}catch(Exception e){
 			JOptionPane.showMessageDialog(null, "Failed to connect to database. Please try again.");
